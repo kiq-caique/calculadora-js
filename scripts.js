@@ -17,56 +17,75 @@ class Calculator {
     this.clear();
   }
 
+  delete() {
+    this.currentOperand = this.currentOperand.toString().slice(0, -1);
+  }
+
   executeOperation() {
+    let result;
     const currentOperand = Number(this.currentOperand);
     const previousOperand = Number(this.previousOperand);
 
-    switch(this.operation) {
+    if (isNaN(previousOperand) || isNaN(currentOperand)) return;
+
+    switch (this.operation) {
       case "+":
         this.previousOperand = "";
-        this.currentOperand = (previousOperand + currentOperand).toString();
+        result = previousOperand + currentOperand;
         break;
-      
+
       case "-":
         this.previousOperand = "";
-        this.currentOperand = (previousOperand - currentOperand).toString();
+        result = previousOperand - currentOperand;
         break;
-      
+
       case "*":
         this.previousOperand = "";
-        this.currentOperand = (previousOperand * currentOperand).toString();
+        result = previousOperand * currentOperand;
         break;
 
-      case "/":
+      case "÷":
         this.previousOperand = "";
-        this.currentOperand = (previousOperand / currentOperand).toString();
+        result = previousOperand / currentOperand;
         break;
-
-
+      default:
+        return;
     }
-    this.operation = undefined;
+
+    this.currentOperand = result;
+    this.operation = "";
+    this.previousOperand = "";
+  }
+
+  chooseOperation(operation) {
+    if (this.previousOperand !== "") {
+      this.executeOperation();
+    }
+
+    this.operation = operation;
+    this.previousOperand = this.currentOperand;
+    this.currentOperand = "";
   }
 
   appendNumber(number) {
-    if (number === "."){
+    if (number === ".") {
       if (this.currentOperand.indexOf(".") === -1) {
         this.currentOperand = `${this.currentOperand}${number.toString()}`;
       }
-    }else{
+    } else {
       this.currentOperand = `${this.currentOperand}${number.toString()}`;
     }
-    
   }
 
   clear() {
     /*BÁSICAMENTE VC TA RESETANDO O PRIMEIRO E SEGUNDO VALOR E O OPERADOR TBM */
     this.currentOperand = "";
     this.previousOperand = "";
-    this.operation = undefined;
+    this.operation = "";
   }
 
   updateDisplay() {
-    this.previousOperandTextElement.innerText = this.previousOperand;
+    this.previousOperandTextElement.innerText = `${this.previousOperand} ${this.operation}`;
     this.currentOperandTextElement.innerText = this.currentOperand;
   }
 }
@@ -84,9 +103,9 @@ for (const numberButton of numberButtons) {
 }
 for (const operationButton of operationButtons) {
   operationButton.addEventListener("click", () => {
+    calculator.operation = operationButton.innerText;
     calculator.previousOperand = calculator.currentOperand;
     calculator.currentOperand = "";
-    calculator.operation = operationButton.innerText;
     calculator.updateDisplay();
   });
 }
@@ -96,7 +115,12 @@ allClearButton.addEventListener("click", () => {
   calculator.updateDisplay();
 });
 
-equalsButton.addEventListener("click", () =>{
+equalsButton.addEventListener("click", () => {
   calculator.executeOperation();
   calculator.updateDisplay();
-})
+});
+
+deleteButton.addEventListener("click", () => {
+  calculator.delete();
+  calculator.updateDisplay();
+});
